@@ -1,3 +1,8 @@
+"""pico2d animation viewer. Run: py character_runs_esc.py
+
+Arrow keys move the boy; Escape or the close button exits.
+"""
+
 import ctypes
 import sys
 from math import hypot
@@ -15,6 +20,8 @@ FRAME_HEIGHT = 100
 FRAME_COUNT = 8
 ANIMATION_FPS = 10
 MOVE_SPEED = 200.0
+MAX_MOVEMENT_DT = 0.05
+LOOP_DELAY = 0.001
 CURSOR_WIDTH = 50
 CURSOR_HEIGHT = 52
 ANIMATIONS = {
@@ -98,6 +105,7 @@ def select_animation(state, name):
 
 
 def update_movement(state, dt):
+    dt = max(0.0, min(dt, MAX_MOVEMENT_DT))
     horizontal = int(p.SDLK_RIGHT in state.pressed_keys) - int(
         p.SDLK_LEFT in state.pressed_keys)
     vertical = int(p.SDLK_UP in state.pressed_keys) - int(
@@ -156,7 +164,7 @@ def main():
             state.frame_index, state.animation_elapsed = advance_animation(
                 state.frame_index, state.animation_elapsed, dt)
             render(state, ground, character, cursor)
-            p.delay(0.05)
+            p.delay(LOOP_DELAY)
         return 0
     except Exception as exc:
         print(f"Viewer error: {exc}", file=sys.stderr)
