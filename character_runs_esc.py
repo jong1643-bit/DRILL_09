@@ -78,12 +78,12 @@ def update_movement(state, dt):
     if length:
         state.x += horizontal / length * MOVE_SPEED * dt
         state.y += vertical / length * MOVE_SPEED * dt
-    state.motion_state = "RUN" if (state.x, state.y) != previous_position else "IDLE"
-    select_animation(state, state.motion_state + "_" + state.facing)
     state.x = min(CANVAS_WIDTH - FRAME_WIDTH / 2,
                   max(FRAME_WIDTH / 2, state.x))
     state.y = min(CANVAS_HEIGHT - FRAME_HEIGHT / 2,
                   max(FRAME_HEIGHT / 2, state.y))
+    state.motion_state = "RUN" if (state.x, state.y) != previous_position else "IDLE"
+    select_animation(state, state.motion_state + "_" + state.facing)
 
 
 def main():
