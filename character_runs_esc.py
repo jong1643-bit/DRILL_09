@@ -40,6 +40,7 @@ class ViewerState:
         self.animation_elapsed = 0.0
         self.animation_name = "IDLE_RIGHT"
         self.facing = "RIGHT"
+        self.motion_state = "IDLE"
 
 
 def handle_events(state, events):
@@ -62,8 +63,10 @@ def update_movement(state, dt):
         state.facing = "RIGHT"
     elif horizontal < 0:
         state.facing = "LEFT"
-    state.animation_name = "IDLE_" + state.facing
+    previous_x = state.x
     state.x += horizontal * MOVE_SPEED * dt
+    state.motion_state = "RUN" if state.x != previous_x else "IDLE"
+    state.animation_name = state.motion_state + "_" + state.facing
 
 
 def main():
