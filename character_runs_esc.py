@@ -1,13 +1,20 @@
+from pathlib import Path
+
 import pico2d as p
 
 CANVAS_WIDTH = 1280
 CANVAS_HEIGHT = 1024
+ASSET_DIR = Path(__file__).resolve().parent
+
+
+def load_asset(filename):
+    return p.load_image(str(ASSET_DIR / filename))
 
 
 def main():
     p.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
-    grass = p.load_image("grass.png")
-    character = p.load_image("animation_sheet.png")
+    grass = load_asset("grass.png")
+    character = load_asset("animation_sheet.png")
     frame = 0
     for x in range(0, 800, 5):
         p.clear_canvas()
