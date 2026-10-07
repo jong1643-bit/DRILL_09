@@ -85,9 +85,11 @@ def handle_events(state, events):
 def sync_window_state(state):
     # pico2d.get_events() drops SDL window events, so query live SDL flags.
     flags = backend.SDL_GetWindowFlags(backend.window)
-    if not flags & backend.SDL_WINDOW_INPUT_FOCUS:
+    visible = bool(flags & backend.SDL_WINDOW_SHOWN) and not bool(
+        flags & backend.SDL_WINDOW_MINIMIZED)
+    if not visible or not flags & backend.SDL_WINDOW_INPUT_FOCUS:
         state.pressed_keys.clear()
-    if flags & backend.SDL_WINDOW_MOUSE_FOCUS:
+    if visible and flags & backend.SDL_WINDOW_MOUSE_FOCUS:
         mouse_x, mouse_y = ctypes.c_int(), ctypes.c_int()
         backend.SDL_GetMouseState(ctypes.byref(mouse_x), ctypes.byref(mouse_y))
         state.cursor_x = mouse_x.value
