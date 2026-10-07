@@ -1,8 +1,10 @@
+import ctypes
 from math import hypot
 from pathlib import Path
 from time import perf_counter
 
 import pico2d as p
+from pico2d import pico2d as backend
 
 CANVAS_WIDTH = 1280
 CANVAS_HEIGHT = 1024
@@ -66,6 +68,21 @@ def handle_events(state, events):
             state.cursor_visible = True
 
 
+def sync_window_state(state):
+    # pico2d.get_events() drops SDL window events, so query live SDL flags.
+    flags = backend.SDL_GetWindowFlags(backend.window)
+    if not flags & backend.SDL_WINDOW_INPUT_FOCUS:
+        state.pressed_keys.clear()
+    if flags & backend.SDL_WINDOW_MOUSE_FOCUS:
+        mouse_x, mouse_y = ctypes.c_int(), ctypes.c_int()
+        backend.SDL_GetMouseState(ctypes.byref(mouse_x), ctypes.byref(mouse_y))
+        state.cursor_x = mouse_x.value
+        state.cursor_y = CANVAS_HEIGHT - 1 - mouse_y.value
+        state.cursor_visible = True
+    else:
+        state.cursor_visible = False
+
+
 def select_animation(state, name):
     if name != state.animation_name:
         state.animation_name = name
@@ -119,6 +136,7 @@ def main():
         handle_events(state, p.get_events())
         if not state.running:
             break
+        sync_window_state(state)
         now = perf_counter()
         dt = now - previous_time
         previous_time = now
