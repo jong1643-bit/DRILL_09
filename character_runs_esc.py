@@ -12,6 +12,8 @@ FRAME_HEIGHT = 100
 FRAME_COUNT = 8
 ANIMATION_FPS = 10
 MOVE_SPEED = 200.0
+CURSOR_WIDTH = 50
+CURSOR_HEIGHT = 52
 ANIMATIONS = {
     "IDLE_RIGHT": 300,
     "IDLE_LEFT": 200,
@@ -93,10 +95,24 @@ def update_movement(state, dt):
     select_animation(state, state.motion_state + "_" + state.facing)
 
 
+def render(state, ground, character, cursor):
+    p.clear_canvas()
+    ground.draw(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
+    character.clip_draw(state.frame_index * FRAME_WIDTH,
+                        ANIMATIONS[state.animation_name],
+                        FRAME_WIDTH, FRAME_HEIGHT, state.x, state.y)
+    if state.cursor_visible:
+        cursor.draw(state.cursor_x + CURSOR_WIDTH / 2,
+                    state.cursor_y - CURSOR_HEIGHT / 2)
+    p.update_canvas()
+
+
 def main():
     p.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
     ground = load_asset("TUK_GROUND.png")
     character = load_asset("animation_sheet.png")
+    cursor = load_asset("hand_arrow.png")
+    p.hide_cursor()
     state = ViewerState()
     previous_time = perf_counter()
     while state.running:
@@ -109,12 +125,9 @@ def main():
         update_movement(state, dt)
         state.frame_index, state.animation_elapsed = advance_animation(
             state.frame_index, state.animation_elapsed, dt)
-        p.clear_canvas()
-        ground.draw(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
-        character.clip_draw(state.frame_index * FRAME_WIDTH, ANIMATIONS[state.animation_name],
-                            FRAME_WIDTH, FRAME_HEIGHT, state.x, state.y)
-        p.update_canvas()
+        render(state, ground, character, cursor)
         p.delay(0.05)
+    p.show_cursor()
     p.close_canvas()
 
 
