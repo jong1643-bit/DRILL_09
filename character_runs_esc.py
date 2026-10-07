@@ -32,6 +32,7 @@ def advance_animation(frame, elapsed, dt):
 class ViewerState:
     def __init__(self):
         self.running = True
+        self.pressed_keys = set()
         self.x = CANVAS_WIDTH / 2
         self.y = CANVAS_HEIGHT / 2
         self.frame_index = 0
@@ -45,6 +46,11 @@ def handle_events(state, events):
                 event.type == p.SDL_KEYDOWN and event.key == p.SDLK_ESCAPE):
             state.running = False
             break
+        if event.type == p.SDL_KEYDOWN and event.key in (
+                p.SDLK_LEFT, p.SDLK_RIGHT, p.SDLK_UP, p.SDLK_DOWN):
+            state.pressed_keys.add(event.key)
+        elif event.type == p.SDL_KEYUP:
+            state.pressed_keys.discard(event.key)
 
 
 def main():
