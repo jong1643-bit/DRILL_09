@@ -1,3 +1,4 @@
+from math import hypot
 from pathlib import Path
 from time import perf_counter
 
@@ -73,8 +74,10 @@ def update_movement(state, dt):
     elif horizontal < 0:
         state.facing = "LEFT"
     previous_position = (state.x, state.y)
-    state.x += horizontal * MOVE_SPEED * dt
-    state.y += vertical * MOVE_SPEED * dt
+    length = hypot(horizontal, vertical)
+    if length:
+        state.x += horizontal / length * MOVE_SPEED * dt
+        state.y += vertical / length * MOVE_SPEED * dt
     state.motion_state = "RUN" if (state.x, state.y) != previous_position else "IDLE"
     select_animation(state, state.motion_state + "_" + state.facing)
 
