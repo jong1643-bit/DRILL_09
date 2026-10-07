@@ -29,29 +29,44 @@ def advance_animation(frame, elapsed, dt):
     return (frame + count) % FRAME_COUNT, max(0.0, elapsed - count * frame_duration)
 
 
+class ViewerState:
+    def __init__(self):
+        self.running = True
+        self.x = CANVAS_WIDTH / 2
+        self.y = CANVAS_HEIGHT / 2
+        self.frame_index = 0
+        self.animation_elapsed = 0.0
+        self.animation_name = "IDLE_RIGHT"
+
+
+def handle_events(state, events):
+    for event in events:
+        if event.type == p.SDL_QUIT or (
+                event.type == p.SDL_KEYDOWN and event.key == p.SDLK_ESCAPE):
+            state.running = False
+            break
+
+
 def main():
     p.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
     ground = load_asset("TUK_GROUND.png")
     character = load_asset("animation_sheet.png")
-    frame = 0
-    animation_name = "IDLE_RIGHT"
-    x, y = CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2
-    elapsed = 0.0
+    state = ViewerState()
     previous_time = perf_counter()
-    while True:
+    while state.running:
+        handle_events(state, p.get_events())
+        if not state.running:
+            break
         now = perf_counter()
         dt = now - previous_time
         previous_time = now
-        frame, elapsed = advance_animation(frame, elapsed, dt)
+        state.frame_index, state.animation_elapsed = advance_animation(
+            state.frame_index, state.animation_elapsed, dt)
         p.clear_canvas()
         ground.draw(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
-        character.clip_draw(frame * FRAME_WIDTH, ANIMATIONS[animation_name],
-                            FRAME_WIDTH, FRAME_HEIGHT, x, y)
+        character.clip_draw(state.frame_index * FRAME_WIDTH, ANIMATIONS[state.animation_name],
+                            FRAME_WIDTH, FRAME_HEIGHT, state.x, state.y)
         p.update_canvas()
-        if any(event.type == p.SDL_QUIT or
-               (event.type == p.SDL_KEYDOWN and event.key == p.SDLK_ESCAPE)
-               for event in p.get_events()):
-            break
         p.delay(0.05)
     p.close_canvas()
 
