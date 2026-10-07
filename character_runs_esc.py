@@ -35,6 +35,9 @@ class ViewerState:
     def __init__(self):
         self.running = True
         self.pressed_keys = set()
+        self.cursor_x = 0
+        self.cursor_y = 0
+        self.cursor_visible = False
         self.x = CANVAS_WIDTH / 2
         self.y = CANVAS_HEIGHT / 2
         self.frame_index = 0
@@ -55,6 +58,10 @@ def handle_events(state, events):
             state.pressed_keys.add(event.key)
         elif event.type == p.SDL_KEYUP:
             state.pressed_keys.discard(event.key)
+        elif event.type == p.SDL_MOUSEMOTION:
+            state.cursor_x = event.x
+            state.cursor_y = CANVAS_HEIGHT - 1 - event.y
+            state.cursor_visible = True
 
 
 def select_animation(state, name):
