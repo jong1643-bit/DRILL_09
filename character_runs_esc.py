@@ -66,13 +66,16 @@ def select_animation(state, name):
 def update_movement(state, dt):
     horizontal = int(p.SDLK_RIGHT in state.pressed_keys) - int(
         p.SDLK_LEFT in state.pressed_keys)
+    vertical = int(p.SDLK_UP in state.pressed_keys) - int(
+        p.SDLK_DOWN in state.pressed_keys)
     if horizontal > 0:
         state.facing = "RIGHT"
     elif horizontal < 0:
         state.facing = "LEFT"
-    previous_x = state.x
+    previous_position = (state.x, state.y)
     state.x += horizontal * MOVE_SPEED * dt
-    state.motion_state = "RUN" if state.x != previous_x else "IDLE"
+    state.y += vertical * MOVE_SPEED * dt
+    state.motion_state = "RUN" if (state.x, state.y) != previous_position else "IDLE"
     select_animation(state, state.motion_state + "_" + state.facing)
 
 
