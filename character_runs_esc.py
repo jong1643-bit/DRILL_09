@@ -10,6 +10,7 @@ FRAME_WIDTH = 100
 FRAME_HEIGHT = 100
 FRAME_COUNT = 8
 ANIMATION_FPS = 10
+MOVE_SPEED = 200.0
 ANIMATIONS = {
     "IDLE_RIGHT": 300,
     "IDLE_LEFT": 200,
@@ -53,6 +54,12 @@ def handle_events(state, events):
             state.pressed_keys.discard(event.key)
 
 
+def update_movement(state, dt):
+    horizontal = int(p.SDLK_RIGHT in state.pressed_keys) - int(
+        p.SDLK_LEFT in state.pressed_keys)
+    state.x += horizontal * MOVE_SPEED * dt
+
+
 def main():
     p.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
     ground = load_asset("TUK_GROUND.png")
@@ -66,6 +73,7 @@ def main():
         now = perf_counter()
         dt = now - previous_time
         previous_time = now
+        update_movement(state, dt)
         state.frame_index, state.animation_elapsed = advance_animation(
             state.frame_index, state.animation_elapsed, dt)
         p.clear_canvas()
