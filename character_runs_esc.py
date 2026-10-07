@@ -56,6 +56,13 @@ def handle_events(state, events):
             state.pressed_keys.discard(event.key)
 
 
+def select_animation(state, name):
+    if name != state.animation_name:
+        state.animation_name = name
+        state.frame_index = 0
+        state.animation_elapsed = 0.0
+
+
 def update_movement(state, dt):
     horizontal = int(p.SDLK_RIGHT in state.pressed_keys) - int(
         p.SDLK_LEFT in state.pressed_keys)
@@ -66,7 +73,7 @@ def update_movement(state, dt):
     previous_x = state.x
     state.x += horizontal * MOVE_SPEED * dt
     state.motion_state = "RUN" if state.x != previous_x else "IDLE"
-    state.animation_name = state.motion_state + "_" + state.facing
+    select_animation(state, state.motion_state + "_" + state.facing)
 
 
 def main():
