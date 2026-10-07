@@ -39,6 +39,7 @@ class ViewerState:
         self.frame_index = 0
         self.animation_elapsed = 0.0
         self.animation_name = "IDLE_RIGHT"
+        self.facing = "RIGHT"
 
 
 def handle_events(state, events):
@@ -57,6 +58,11 @@ def handle_events(state, events):
 def update_movement(state, dt):
     horizontal = int(p.SDLK_RIGHT in state.pressed_keys) - int(
         p.SDLK_LEFT in state.pressed_keys)
+    if horizontal > 0:
+        state.facing = "RIGHT"
+    elif horizontal < 0:
+        state.facing = "LEFT"
+    state.animation_name = "IDLE_" + state.facing
     state.x += horizontal * MOVE_SPEED * dt
 
 
