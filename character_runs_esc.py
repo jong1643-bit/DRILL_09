@@ -13,12 +13,12 @@ def load_asset(filename):
 
 def main():
     p.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
-    grass = load_asset("grass.png")
+    ground = load_asset("TUK_GROUND.png")
     character = load_asset("animation_sheet.png")
     frame = 0
     for x in range(0, 800, 5):
         p.clear_canvas()
-        grass.draw(400, 30)
+        ground.draw(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
         character.clip_draw(frame * 100, 100, 100, 100, x, 90)
         p.update_canvas()
         if any(event.type == p.SDL_QUIT or
