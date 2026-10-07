@@ -1,4 +1,5 @@
 import ctypes
+import sys
 from math import hypot
 from pathlib import Path
 from time import perf_counter
@@ -25,7 +26,13 @@ ANIMATIONS = {
 
 
 def load_asset(filename):
-    return p.load_image(str(ASSET_DIR / filename))
+    path = ASSET_DIR / filename
+    if not path.is_file():
+        raise RuntimeError(f"Missing asset: {path}")
+    try:
+        return p.load_image(str(path))
+    except Exception as exc:
+        raise RuntimeError(f"Cannot load asset: {path}") from exc
 
 
 def advance_animation(frame, elapsed, dt):
@@ -125,29 +132,42 @@ def render(state, ground, character, cursor):
 
 
 def main():
-    p.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
-    ground = load_asset("TUK_GROUND.png")
-    character = load_asset("animation_sheet.png")
-    cursor = load_asset("hand_arrow.png")
-    p.hide_cursor()
-    state = ViewerState()
-    previous_time = perf_counter()
-    while state.running:
-        handle_events(state, p.get_events())
-        if not state.running:
-            break
-        sync_window_state(state)
-        now = perf_counter()
-        dt = now - previous_time
-        previous_time = now
-        update_movement(state, dt)
-        state.frame_index, state.animation_elapsed = advance_animation(
-            state.frame_index, state.animation_elapsed, dt)
-        render(state, ground, character, cursor)
-        p.delay(0.05)
-    p.show_cursor()
-    p.close_canvas()
+    canvas_open = False
+    try:
+        p.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
+        canvas_open = True
+        if not backend.window or not backend.renderer:
+            raise RuntimeError("Cannot create pico2d canvas")
+        ground = load_asset("TUK_GROUND.png")
+        character = load_asset("animation_sheet.png")
+        cursor = load_asset("hand_arrow.png")
+        p.hide_cursor()
+        state = ViewerState()
+        previous_time = perf_counter()
+        while state.running:
+            handle_events(state, p.get_events())
+            if not state.running:
+                break
+            sync_window_state(state)
+            now = perf_counter()
+            dt = now - previous_time
+            previous_time = now
+            update_movement(state, dt)
+            state.frame_index, state.animation_elapsed = advance_animation(
+                state.frame_index, state.animation_elapsed, dt)
+            render(state, ground, character, cursor)
+            p.delay(0.05)
+        return 0
+    except Exception as exc:
+        print(f"Viewer error: {exc}", file=sys.stderr)
+        return 1
+    finally:
+        if canvas_open:
+            try:
+                p.show_cursor()
+            finally:
+                p.close_canvas()
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
